@@ -1,0 +1,1393 @@
+<?php
+require_once ('custom_module.theme.inc');
+/**
+ * @file custom_module.module
+ *
+ * Creates the block for display and menu items for configuration
+ */
+
+/**
+ * Implements menu_hook()
+ *
+ * Setup routes to their appropriate functions
+ */
+function custom_module_menu() {
+  $items = array();
+  $items['registeruser'] = array(
+    'title' => 'Register',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('user_register_form'),
+    'access arguments' => array('access content'),
+  );
+  $items['register'] = array(
+    'title' => 'Register',
+    'page callback' => 'custom_register',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,    
+ 
+  );
+  $items['login'] = array(
+    'title' => 'login',
+    'page callback' => 'custom_login',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['logout'] = array(
+    'title' => 'logout',
+    'page callback' => 'logout',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+$items['loginsubmit'] = array(
+    'title' => 'Login',
+    'page callback' => 'customer_login',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+ $items['edit_profile'] = array(
+    'title' => 'edit_profile',
+    'page callback' => 'edit_profile',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  ); 
+  $items['history'] = array(
+    'title' => 'purchase_history',
+    'page callback' => 'purchase_history',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  ); 
+   $items['request_password'] = array(
+    'title' => 'request password',
+    'page callback' => 'request_password',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+   $items['change_password'] = array(
+    'title' => 'change_password',
+    'page callback' => 'change_password',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );    
+   $items['savecustomer'] = array(
+    'title' => 'Ticket Booking',
+    'page callback' => 'savecustomer',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+ $items['ticket_booking'] = array(
+    'title' => 'ticket_booking',
+    'page callback' => 'ticket_booking',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+    $items['booking_recalculateBasket'] = array(
+    'title' => 'booking_recalculateBasket',
+    'page callback' => 'booking_recalculateBasket',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+    $items['getexpositionid'] = array(
+    'title' => 'getexpositionid',
+    'page callback' => 'getexpositionid',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );  
+    $items['updatecheckout'] = array(
+    'title' => 'updatecheckout',
+    'page callback' => 'updatecheckout',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );   
+    $items['updateusercheckout'] = array(
+    'title' => 'updateusercheckout',
+    'page callback' => 'updateusercheckout',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  ); 
+    $items['updatepassword'] = array(
+    'title' => 'updatepassword',
+    'page callback' => 'updatepassword',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );       
+  
+    return $items;
+}
+
+
+
+function updateusercheckout(){
+
+   $vpc_ReceiptNo= "";
+   $vpc_OrderInfo = $_REQUEST["vpc_OrderInfo"];
+   if(isset($_REQUEST["vpc_ReceiptNo"])){
+       $vpc_ReceiptNo = $_REQUEST["vpc_ReceiptNo"];
+  }
+   $vpc_TransactionNo = $_REQUEST["vpc_TransactionNo"];
+   $vpc_TxnResponseCode = $_REQUEST["vpc_TxnResponseCode"];
+   $vpc_VerType = $_REQUEST["vpc_VerType"];
+   if(isset($_REQUEST["vpc_VerToken"])){
+       $vpc_VerToken = $_REQUEST["vpc_VerToken"];
+  }   
+   $vpc_Message = $_REQUEST["vpc_Message"];
+   $amount = $_REQUEST["vpc_Amount"]/100;
+   if( $vpc_Message == "Approved"){
+     global $basketdetails;
+$datemm = array();
+
+$lockTicketarr = $basketdetails; 
+$lockTicketarr = $_SESSION["basketdetails"]; 
+
+$userId = $_SESSION["personid"];	#'SESSION user value';
+
+      $checkoutBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.json_encode($lockTicketarr).',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+
+    //  echo $checkoutBasket;
+
+      $url = 'https://testtickets.qm.org.qa/json/General/CheckoutBasket/';
+
+
+      //echo $validateBasket;
+
+
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS,$checkoutBasket);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      $response  = curl_exec($ch);
+      if(curl_errno($ch)){
+        $json = curl_error($ch);
+      }else{
+        $json = json_decode($response, true);
+      }
+      curl_close($ch);
+$mm = json_decode($response);
+ $kk = $mm->result;
+
+$mm1 = $kk->salesItems;
+$mmtext = "";
+	foreach ($mm1 as $k => $v) {
+		$barcode = $v->barcodes;
+     $datemm['barcode'] = $barcode;
+
+	}
+
+
+
+   }
+  $datemm['vpc_TransactionNo'] = $vpc_TransactionNo;
+  $datemm['vpc_ReceiptNo'] = $vpc_ReceiptNo;
+  $datemm['vpc_Message'] = $vpc_Message;
+  
+  $datemm['amount'] = $amount;
+
+    $output = theme('updatecheckout', array('data'=> $datemm)); 
+  return $output;	 
+
+}
+function updatecheckout(){
+ // print_r($_REQUEST);
+  $vpc_ReceiptNo= "";
+   $vpc_OrderInfo = $_REQUEST["vpc_OrderInfo"];
+   if(isset($_REQUEST["vpc_ReceiptNo"])){
+       $vpc_ReceiptNo = $_REQUEST["vpc_ReceiptNo"];
+  }
+   $vpc_TransactionNo = $_REQUEST["vpc_TransactionNo"];
+   $vpc_TxnResponseCode = $_REQUEST["vpc_TxnResponseCode"];
+   $vpc_VerType = $_REQUEST["vpc_VerType"];
+   if(isset($_REQUEST["vpc_VerToken"])){
+       $vpc_VerToken = $_REQUEST["vpc_VerToken"];
+  }   
+   $vpc_Message = $_REQUEST["vpc_Message"];
+   $amount = $_REQUEST["vpc_Amount"]/100;
+   if( $vpc_Message == "Approved"){
+     global $basketdetails;
+$datemm = array();
+
+$lockTicketarr = $basketdetails; 
+$lockTicketarr = $_SESSION["basketdetails"]; 
+
+$userId = $_SESSION["personid"];	#'SESSION user value';
+
+      $checkoutBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.json_encode($lockTicketarr).',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+
+    //  echo $checkoutBasket;
+
+      $url = 'https://testtickets.qm.org.qa/json/General/CheckoutBasket/';
+
+
+      //echo $validateBasket;
+
+
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $url);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS,$checkoutBasket);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      $response  = curl_exec($ch);
+      if(curl_errno($ch)){
+        $json = curl_error($ch);
+      }else{
+        $json = json_decode($response, true);
+      }
+      curl_close($ch);
+$mm = json_decode($response);
+ $kk = $mm->result;
+
+$mm1 = $kk->salesItems;
+$mmtext = "";
+	foreach ($mm1 as $k => $v) {
+		$barcode = $v->barcodes;
+     $datemm['barcode'] = $barcode;
+
+	}
+
+
+
+   }
+  $datemm['vpc_TransactionNo'] = $vpc_TransactionNo;
+  $datemm['vpc_ReceiptNo'] = $vpc_ReceiptNo;
+  $datemm['vpc_Message'] = $vpc_Message;
+  
+  $datemm['amount'] = $amount;
+
+    $output = theme('updatecheckout', array('data'=> $datemm)); 
+  return $output;	 
+}
+
+
+
+
+
+function booking_recalculateBasket(){
+
+
+
+$userId = $_SESSION["personid"];	#'SESSION user value';
+
+
+
+if($userId ==""){
+ $userid="00000000-0000-0000-0000-000000000000";
+}
+$priceinfo = $_REQUEST["priceinfo"];
+$qtyinfo = $_REQUEST["qtyinfo"];
+$expid = $_REQUEST["expid"];
+$exppid = $_REQUEST["exppid"];
+
+$articalId = json_decode($priceinfo);
+$quantityCount = json_decode($qtyinfo);
+
+
+
+
+
+
+
+$itemsArray = array();
+for ($x = 0; $x < count($articalId); $x++) {
+    $temparray = array('$type'=>"ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts", 'Article'=>array('id'=>$articalId[$x]), 'Quantity'=>$quantityCount[$x], 'CustomerID'=>$userId);
+array_push($itemsArray,$temparray);
+
+} 
+
+$locakArray = array();
+for ($x = 0; $x < count($articalId); $x++) {
+    $temparray = array('$type'=>"ReCreateX.WebShop.WebServices.Contracts.ExpositionPeriodReservationEntry,ReCreateX.WebShop.WebServices.Contracts", 'PriceGroupId'=>$articalId[$x], 'ParticipantCount'=>$quantityCount[$x]);
+    array_push($locakArray,$temparray);
+} 
+
+
+if($userId ==""){
+  $lockBasket = '{"BasketItems":[{"$type":"ReCreateX.WebShop.WebServices.Contracts.ExpositionPeriodReservation,ReCreateX.WebShop.WebServices.Contracts","Entries":'.json_encode($locakArray).',"ExpositionPeriodId":"'.$exppid.'","ExpositionId":"'.$expid.'"}],"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+}else{
+$lockBasket = '{"BasketItems":[{"$type":"ReCreateX.WebShop.WebServices.Contracts.ExpositionPeriodReservation,ReCreateX.WebShop.WebServices.Contracts","Entries":'.json_encode($locakArray).',"CustomerId":"'.$userId.'","ExpositionPeriodId":"'.$exppid.'","ExpositionId":"'.$expid.'"}],"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+}
+
+
+array_push($itemsArray,$temparray);
+
+
+$url = 'https://testtickets.qm.org.qa/json/General/LockBasketItems/';
+
+
+
+$ch4 = curl_init();
+curl_setopt($ch4, CURLOPT_URL, $url);
+curl_setopt($ch4, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch4, CURLOPT_POST, 1);
+curl_setopt($ch4, CURLOPT_POSTFIELDS,$lockBasket);
+curl_setopt($ch4, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch4, CURLOPT_SSL_VERIFYPEER, false);
+$response4  = curl_exec($ch4);
+if(curl_errno($ch4)){
+	$json4 = curl_error($ch4);
+}else{
+	$json4 = json_decode($response4, true);
+}
+curl_close($ch4);
+
+
+$locksresarrary = $json4["lockBasketResult"];
+$lockTicket = $locksresarrary["lockTicket"];
+
+
+$lockTicketarr = $locksresarrary["basketItems"];
+
+if(trim($_SESSION["personid"]) ==""){
+$recalculateBasket = '{"Basket":{"CustomerId":"00000000-0000-0000-0000-000000000000","Items":'.json_encode($lockTicketarr).',"Payments":null,"Price":"253.00"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+}else{
+  $recalculateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.json_encode($lockTicketarr).',"Payments":null,"Price":"253.00"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+}
+
+$url = 'https://testtickets.qm.org.qa/json/General/ReCalculateBasket/';
+
+
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$recalculateBasket);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+
+
+
+//echo $response;
+
+
+$amount = $json['basket']['price'];
+$userId = $json['basket']['customerId'];
+
+$_SESSION["personid"] = $userId;
+global $basketdetails;
+
+$basketdetails = $lockTicketarr;
+$_SESSION["basketdetails"] = $lockTicketarr;
+
+$validateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.json_encode($lockTicketarr).',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$url = 'https://testtickets.qm.org.qa/json/General/ValidateBasket/';
+
+
+//echo $validateBasket;
+
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$validateBasket);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+
+
+$validcheck = $json["result"]["isValid"]; 
+if($validcheck == true){
+      $amount = (int)$amount * 100; # COLLECT AMOUNT FROM URL 
+
+         global $base_url;
+            $returnUrl = $base_url.'/updatecheckout/'; # TESTING URL 
+           
+            $vpcURL = 'https://migs-mtf.mastercard.com.au/vpcpay?';
+            $secretHash = 'D99F1498407B4B4F0411211B721AC6C0';
+            $accessCode = '46CADE35';
+            $merchantId = 'QMQNB01';
+            
+            $data = array(
+                    "vpc_AccessCode" => $accessCode,
+                    "vpc_Amount" => $amount,
+                    "vpc_Command" => 'pay',
+                    "vpc_Locale" => 'en',
+                    "vpc_MerchTxnRef" => "Ref_N_".time(),
+                    "vpc_Merchant" => $merchantId,
+                    "vpc_OrderInfo" => "Order_N_".time(),
+                    "vpc_ReturnURL" => $returnUrl,
+                    "vpc_Version" => '1',
+                    "vpc_SecureHashType" => 'SHA256'    
+                    );
+            ksort($data);
+            $hash = null;
+            foreach ($data as $k => $v) {
+               if(in_array($k, array('vpc_SecureHash', 'vpc_SecureHashType'))) {
+                  continue;
+               }
+               if((strlen($v) > 0) && ((substr($k, 0, 4)=="vpc_") || (substr($k, 0, 5) =="user_"))) {
+                  $hash .= $k . "=" . $v . "&";
+               }
+            }
+            $hash = rtrim($hash, "&");
+            
+            $secureHash = strtoupper(hash_hmac('SHA256', $hash, pack('H*', $secretHash)));
+            $paraFinale = array_merge($data, array('vpc_SecureHash' => $secureHash));
+            $actionurl = $vpcURL.http_build_query($paraFinale);
+     
+    
+    
+    
+     $myArr = array("amount"=>$amount,"baseurl"=> $vpcURL, "queryurl"=>http_build_query($paraFinale),"isValid"=>$validcheck);
+   
+
+$myJSON = json_encode($myArr);
+
+    
+}else{
+       $myArr = array("isValid"=>$validcheck);
+
+
+}
+
+   echo $myJSON;            
+
+
+ 
+
+}
+
+
+function footer_user(){
+   $output = '<section class="widget_head membership_head" style="left:0">';
+    $output .='<div class="wrapper">';
+     $output .= '<ul>';
+        $output .='<li class="active"><a href="#" class="">1. Plan</a>';
+         $output .= '<div class="details_div" style="display:none">';
+          $output .= ' <p>13 march</p>';
+           $output .=' <p>15:15</p>';
+         $output .= '</div>';
+       $output .= '</li>';
+       $output .= '<li><a href="#" class="">2. Info</a>';
+         $output .= '<div class="details_div" style="display:none">';
+           $output .=' <p>info test</p>';
+           $output .= '<p>test@gmail.com</p>';
+           $output .= '<p>0132456789</p>';
+          $output .='</div>';
+       $output .=' </li>';
+        $output .='<li><a href="#" class="">3. Payment</a>';
+          $output .='<div class="details_div" style="display:none">';
+           $output .= '<p>QR 150</p>';
+         $output .= '</div>';
+       $output .= '</li>';
+
+      $output .='</ul>';
+     $output .= '<div class="submitbtn float-right"><a href="#" class="btn" id="membeship_next_btn"> Next</a></div>';
+    $output .='</div>';
+  $output .='</section>';
+  return $output;	 
+
+}
+
+
+function footer_ticket(){
+ $output = '<section class="widget_head">';
+    $output .= '<div class="wrapper">';
+      $output .= '<ul>';
+        $output .= '<li class="active"><a href="#" class="">1. plan your visit</a>';
+          $output .= '<div class="details_div" style="display:none">';
+            $output .= '<p>13 march</p>';
+            $output .= '<p>15:15</p>';
+          $output .= '</div>';
+        $output .= '</li>';
+        $output .= '<li><a href="#" class="">2. tickets</a>';
+          $output .= '<div class="details_div" style="display:none">';
+            $output .= '<p>2x Adults</p>';
+            $output .= '<p>4x Child</p>';
+            $output .= '<p>1x QID</p>';
+          $output .= '</div>';
+        $output .= '</li>';
+        $output .= '<li><a href="#" class="">3. your information</a>';
+          $output .= '<div class="details_div" style="display:none">';
+            $output .= '<p>info test</p>';
+            $output .= '<p>test@gmail.com</p>';
+            $output .= '<p>0132456789</p>';
+          $output .= '</div>';
+       $output .= ' </li>';
+        $output .= '<li><a href="#" class="">4. payment</a>';
+          $output .= '<div class="details_div" style="display:none">';
+           $output .= ' <p>QR 150</p>';
+          $output .= '</div>';
+       $output .= ' </li>';
+
+      $output .= '</ul>';
+      $output .= '<div class="submitbtn" id="membeship_next_btn12"><a href="#" class="btn next_btn">next</a></div>';
+    $output .= '</div>';
+  $output .= '</section>'; 
+  return $output;	 
+}
+
+function listmusume(){
+
+	  
+$museumList = array();
+$shopId = variable_get('api_username');
+  $password = variable_get('api_password');
+  $api_url = 'https://testtickets.qm.org.qa/Json';
+  $shopId = '6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134';
+  $password = 'dAW2zk4qP2ugZguD';
+  $allExposition = '{"Criteria":{},"Context":{"ShopId":"'.$shopId.'","Password":"'.$password.'","Language":"EN"}}';
+  $url = $api_url.'/General/ListDivisions/';
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+  $response  = curl_exec($ch);
+  if(curl_errno($ch)){
+  $json = curl_error($ch);
+  }else{
+  $json = json_decode($response, true);
+  }
+  curl_close($ch);
+     $selmuseum = "";
+
+  if (isset($_REQUEST['mid'])){
+         $selmuseum = $_REQUEST['mid'];
+
+  }
+  $museumList = array();$mm =0;
+  foreach($json['divisions'] as $k => $v){
+       if($mm ==0 &&  $selmuseum == ""){
+                $selmuseum = $v['id'];
+            }
+   $museumList[] = array('museum_id'=>$v['id'], 'museum_name'=>$v['name'],'selmuseum'=>$selmuseum);
+   $mm++;
+  }
+  
+$allExposition = '{"SearchCriteria":{},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$url = 'https://testtickets.qm.org.qa/json/Expositions/FindExpositions/';
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+$devi_ID = $selmuseum; # GET THIS ID FROM https://testtickets.qm.org.qa/json/General/ListDivisions/ SERVICE as museum_id
+$museum_Ticket = array();
+
+
+
+foreach($json['expositions'] as $k => $v){
+	if($v['divisionId'] == $devi_ID){
+		$museum_Ticket["expositionId"]	= $v['id'];
+		$museum_Ticket["code"]		= $v['code'];
+		$museum_Ticket["image"]		= $v['image'];
+		$museum_Ticket["name"]		= $v['name'];
+		$museum_Ticket["from"]		= $v['from'];
+		$museum_Ticket["until"]		= $v['until'];
+		$museum_Ticket["maxVisitorsPerPeriod"] = $v['maxVisitorsPerPeriod'];
+		$museum_Ticket["startDate"]	= $v['startDate'];
+		$museum_Ticket["endDate"]	= $v['endDate'];
+		$museum_Ticket["prices"] = array(); 
+		foreach($v['prices'] as $p_key => $p_val){
+			$museum_Ticket["prices"][] = array("amount"=>$p_val['amount'], "price_id"=>$p_val['id'], "price_group_id"=>$p_val['group']['id'], "group_name"=>$p_val['group']['name'], "price_group_code"=>$p_val['group']['code']);				
+		}
+	}
+}  
+  
+  $temparray =array();
+  $temparray["museumList"] = $museumList;
+   $temparray["museumTicket"] = $museum_Ticket;
+ 
+  $output = theme('listmusume', array('data'=> $temparray)); 
+  return $output;	 
+}
+
+
+function verify_username($username){
+	$checkUser = '{"Criteria":{"UserName":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+	$apiResponse = APIcallform($checkUser, 'https://testtickets.qm.org.qa/Json/General/FindPerson/');
+	$allow_user = True;
+	if(count($apiResponse['result']) > 0){
+		$allow_user = False;// Username already exits;
+	}
+	return $allow_user;
+}
+function updatepassword(){
+   $personuid = $_SESSION["personuid"]; 
+    	$jsonData = '{"Person":"Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+}
+function savecustomer(){
+    $mail = $_REQUEST["cemail"];
+	$password = $_REQUEST["cpass"];
+	$country = $_REQUEST["country"];
+	$country = $_REQUEST["country"];
+	$username = $_REQUEST["cusername"];
+	$firstname = $_REQUEST["firstname"];
+	$lastname = $_REQUEST["lastname"];
+	$phone = $_REQUEST["mobile"];
+	$streetname = $_REQUEST["street"];
+	$town = $_REQUEST["city"];
+	$zipcode = $_REQUEST["zipcode"];
+  $selemem = $_REQUEST["memebership"];
+	$apiuserid = $_REQUEST["apiuserid"];
+     $postbox ='2777';  
+
+
+
+
+ if($apiuserid !=""){
+  	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+     
+ }else{
+    	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+   
+ }
+ 	$checkAPI = True;
+   $myJSON = "";
+	$checkAPI = verify_username($username);
+    if($checkAPI){
+       
+          $url = "https://testtickets.qm.org.qa/Json/General/SavePerson/";
+        	$ch = curl_init();
+        	curl_setopt($ch, CURLOPT_URL, $url);
+        	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+        	curl_setopt($ch, CURLOPT_POST, 1);
+        	curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
+        	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        	$response  = curl_exec($ch);
+        	if(curl_errno($ch)){
+        		$responseData = curl_error($ch);
+        	}else{
+        		$responseData = json_decode($response, true);
+        	}
+        	curl_close($ch);
+        	$clientid = $responseData["result"]["person"]["id"];
+      
+       $new_user = array(
+              'name' => $username,
+              'pass' => $username,
+              'mail' => $mail,
+              'init' => $mail,
+              'field_first_name' =>$firstname,
+              'field_last_name' => $lastname,
+              'status' => 1,
+        );
+
+        // $account returns user object
+        $account = user_save(null, $new_user);
+        $userarrau = user_load_by_mail($mail);
+
+	  $_SESSION["username"] =$username; 
+	  $_SESSION["personid"] =	$clientid; 
+	  $_SESSION["personEmail"] =$mail; 
+	  $_SESSION["personName"] =$firstname; 
+ 	  $_SESSION["personuid"] =$userarrau->uid; 
+     $GLOBALS['user']->uid =  $userarrau->uid; 
+
+
+$userId = $clientid;
+$lockTicketarr = '[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "'.$selemem.'"},"Quantity": 1,"CustomerID": "'.$userId.'"}],"Price": 0.0';
+
+$recalculateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.$lockTicketarr.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+//$recalculateBasket='{"Basket":{"CustomerId":"a5ef0e66-575c-e911-a2d9-005056b0828f","Items":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "8e54f0f2-2725-e911-a2d5-005056b0685a"},"Quantity": 1,"CustomerID": "a5ef0e66-575c-e911-a2d9-005056b0828f"}],"Price": 350.0},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+$url = 'https://testtickets.qm.org.qa/json/General/ReCalculateBasket/';
+
+
+
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$recalculateBasket);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+
+
+
+
+$amount = $json['basket']['price'];
+
+
+$lockTicketarr1 = '[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "'.$selemem.'"},"Quantity": 1,"CustomerID": "'.$userId.'","unitPrice":'.$amount.',"customPrice":0}]';
+
+
+$_SESSION["basketdetails"] = $lockTicketarr1;
+
+$validateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.$lockTicketarr1.',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$url = 'https://testtickets.qm.org.qa/json/General/ValidateBasket/';
+
+
+
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$validateBasket);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+
+
+
+$validcheck = $json["result"]["isValid"]; 
+if($validcheck){
+      $amount = (int)$amount * 100; # COLLECT AMOUNT FROM URL 
+
+         global $base_url;
+            $returnUrl = $base_url.'/updateusercheckout/'; # TESTING URL 
+           
+            $vpcURL = 'https://migs-mtf.mastercard.com.au/vpcpay?';
+            $secretHash = 'D99F1498407B4B4F0411211B721AC6C0';
+            $accessCode = '46CADE35';
+            $merchantId = 'QMQNB01';
+            
+            $data = array(
+                    "vpc_AccessCode" => $accessCode,
+                    "vpc_Amount" => $amount,
+                    "vpc_Command" => 'pay',
+                    "vpc_Locale" => 'en',
+                    "vpc_MerchTxnRef" => "Ref_N_".time(),
+                    "vpc_Merchant" => $merchantId,
+                    "vpc_OrderInfo" => "Order_N_".time(),
+                    "vpc_ReturnURL" => $returnUrl,
+                    "vpc_Version" => '1',
+                    "vpc_SecureHashType" => 'SHA256'    
+                    );
+            ksort($data);
+            $hash = null;
+            foreach ($data as $k => $v) {
+               if(in_array($k, array('vpc_SecureHash', 'vpc_SecureHashType'))) {
+                  continue;
+               }
+               if((strlen($v) > 0) && ((substr($k, 0, 4)=="vpc_") || (substr($k, 0, 5) =="user_"))) {
+                  $hash .= $k . "=" . $v . "&";
+               }
+            }
+            $hash = rtrim($hash, "&");
+            
+            $secureHash = strtoupper(hash_hmac('SHA256', $hash, pack('H*', $secretHash)));
+            $paraFinale = array_merge($data, array('vpc_SecureHash' => $secureHash));
+            $actionurl = $vpcURL.http_build_query($paraFinale);
+     
+    
+    
+    
+     $myArr = array("amount"=>$amount,"baseurl"=> $vpcURL, "queryurl"=>http_build_query($paraFinale),"isValid"=>$validcheck);
+   
+
+$myJSON = json_encode($myArr);
+
+    
+}else{
+       $myJSON = json_encode(array("isValid"=>$validcheck));
+
+}
+
+
+echo $myJSON;
+
+}else{
+	    echo 'Username already exits';
+		drupal_set_message(t('Username already exits, Try another name.'), 'error');
+               // return False;
+	}
+	
+	
+   
+	
+}
+
+function getexpositionid(){
+
+      $devi_ID = $_REQUEST["mid"];
+      $startdate = $_REQUEST["stdate"];
+
+      $startdate=date_create($startdate);
+      $startdate = date_format($startdate,"Y-m-d");
+
+
+      $startdate1 =$startdate." 00:00:00";
+      $enddate =$startdate." 23:59:59";
+
+
+      $allExpositionp = '{"SearchCriteria":{"ExpositionId":"'.$devi_ID.'","from":"'.$startdate1.'","until":"'.$enddate.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+
+
+      $urlp = 'https://testtickets.qm.org.qa/json/Expositions/ListExpositionPeriods/';
+
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $urlp);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS,$allExpositionp);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      $response  = curl_exec($ch);
+      if(curl_errno($ch)){
+        $json = curl_error($ch);
+      }else{
+        $json = json_decode($response, true);
+      }
+      curl_close($ch);
+      echo $json["expositionPeriods"][0]["id"];
+      
+}
+
+
+function ticket_booking(){
+  if(isset($_SESSION["personuid"])){
+      $GLOBALS['user']->uid = $_SESSION["personuid"];
+  }	
+		  
+$museumList = array();
+$shopId = variable_get('api_username');
+  $password = variable_get('api_password');
+  $api_url = 'https://testtickets.qm.org.qa/Json';
+  $shopId = '6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134';
+  $password = 'dAW2zk4qP2ugZguD';
+  $allExposition = '{"Criteria":{},"Context":{"ShopId":"'.$shopId.'","Password":"'.$password.'","Language":"EN"}}';
+  $url = $api_url.'/General/ListDivisions/';
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+  $response  = curl_exec($ch);
+  if(curl_errno($ch)){
+  $json = curl_error($ch);
+  }else{
+  $json = json_decode($response, true);
+  }
+  curl_close($ch);
+     $selmuseum = "";
+
+  if (isset($_REQUEST['mid'])){
+         $selmuseum = $_REQUEST['mid'];
+
+  }
+  $museumList = array();$mm =0;
+  foreach($json['divisions'] as $k => $v){
+       if($mm ==0 &&  $selmuseum == ""){
+                $selmuseum = $v['id'];
+            }
+   $museumList[] = array('museum_id'=>$v['id'], 'museum_name'=>$v['name'],'selmuseum'=>$selmuseum);
+   $mm++;
+  }
+  
+$allExposition = '{"SearchCriteria":{},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$url = 'https://testtickets.qm.org.qa/json/Expositions/FindExpositions/';
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+
+$devi_ID = $selmuseum; 
+
+$allExpositionart = '{"SearchCriteria":{},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$urlart = 'https://testtickets.qm.org.qa/json/Articles/FindArticles/';
+
+$ch1 = curl_init();
+curl_setopt($ch1, CURLOPT_URL, $urlart);
+curl_setopt($ch1, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch1, CURLOPT_POST, 1);
+curl_setopt($ch1, CURLOPT_POSTFIELDS,$allExpositionart);
+curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch1, CURLOPT_SSL_VERIFYPEER, false);
+$response1  = curl_exec($ch1);
+if(curl_errno($ch1)){
+	$json1 = curl_error($ch1);
+}else{
+	$json1 = json_decode($response1, true);
+}
+curl_close($ch1);
+ $descarray = array();
+ if(count($json1) > 0){
+  foreach($json1['articles'] as $k => $v){
+    if($v['divisionId'] == $devi_ID){
+      $descarray[$v['code']] =  $v['description'];
+    }
+  } 
+ }
+
+
+
+$museum_Ticket = array();
+
+foreach($json['expositions'] as $k => $v){
+	if($v['divisionId'] == $devi_ID){
+		$museum_Ticket["expositionId"]	= $v['id'];
+		$museum_Ticket["code"]		= $v['code'];
+		$museum_Ticket["image"]		= $v['image'];
+		$museum_Ticket["name"]		= $v['name'];
+		$museum_Ticket["from"]		= $v['from'];
+		$museum_Ticket["until"]		= $v['until'];
+		$museum_Ticket["maxVisitorsPerPeriod"] = $v['maxVisitorsPerPeriod'];
+		$museum_Ticket["startDate"]	= $v['startDate'];
+		$museum_Ticket["endDate"]	= $v['endDate'];
+		$museum_Ticket["description"]	= "";
+		$museum_Ticket["prices"] = array(); 
+    $showdesc = "";
+		foreach($v['prices'] as $p_key => $p_val){
+      $code= $p_val["group"]["code"];
+      if (array_key_exists($code,$descarray)){
+          $showdesc=  $descarray[$code];
+      }
+			$museum_Ticket["prices"][] = array("code"=>$showdesc,"amount"=>$p_val['amount'], "price_id"=>$p_val['id'], "price_group_id"=>$p_val['group']['id'], "group_name"=>$p_val['group']['name'], "price_group_code"=>$p_val['group']['code']);				
+		}
+	}
+}  
+  
+  $temparray =array();
+  $temparray["museumList"] = $museumList;
+   $temparray["museumTicket"] = $museum_Ticket;
+ 
+$output = theme('ticket_booking', array('data'=> $temparray)); 
+return $output;
+}
+// Common API call 
+function APIcallform($jsonData, $url){
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	$response  = curl_exec($ch);
+	if(curl_errno($ch)){
+		$responseData = curl_error($ch);
+	}else{
+		$responseData = json_decode($response, true);
+	}
+	curl_close($ch);
+	return $responseData;
+}
+
+
+//Hook function Login Submit : Check with API data
+function customer_login(){	
+	$username = $_REQUEST["username"];
+	$password = $_REQUEST["pass"];
+	$user = '{"Credentials":{"Password":"'.$password.'","Username":"'.$username.'"},"IgnoreUpdatePasswordIsChangedByUserOnWebField": false,"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+	$apiResponse = APIcallform($user, 'https://testtickets.qm.org.qa/Json/General/AuthenticateUser');
+
+	if($apiResponse['result']['hasSucceeded'] == true || $apiResponse['result']['hasSucceeded'] == 1){
+	  $personId   = $apiResponse['result']['personId'];
+	  $personEmail= $apiResponse['result']['person']['email'];
+	  $personName = $apiResponse['result']['person']['name']['first']." ".$apiResponse['result']['person']['name']['last'];
+    
+	  $_SESSION["username"] =$username; 
+	  $_SESSION["personid"] =$personId; 
+	  $_SESSION["personEmail"] =$personEmail; 
+	  $_SESSION["personName"] =$personName; 
+    $userarrau = user_load_by_mail($personEmail);
+    if(count($userarrau)>0){
+    }else{
+        $new_user = array(
+              'name' => $username,
+              'pass' => $username,
+              'mail' => $personEmail,
+              'init' => $personEmail,
+              'field_first_name' =>$apiResponse['result']['person']['name']['first'],
+              'field_last_name' => $apiResponse['result']['person']['name']['last'],
+              'status' => 1,
+        );
+
+        // $account returns user object
+        $account = user_save(null, $new_user);
+        $userarrau = user_load_by_mail($personEmail);
+
+
+  }
+
+
+ 	  $_SESSION["personuid"] =$userarrau->uid; 
+       $GLOBALS['user']->uid =  $userarrau->uid; 
+
+	  $userDetails= array("hasSucceeded"=>true, "message"=>"Login Success", "personId"=>$personId, "personEmail"=>$personEmail, "personName"=>$personName);
+	}else{
+	  $userDetails= array("hasSucceeded"=>false, "message"=>"Login Failed");
+	}
+	if($userDetails['hasSucceeded']){
+		//drupal_set_message(t('You are now logged in.')); # Users table validation
+       $GLOBALS['user']->uid =  $userarrau->uid; 
+		$msg = 'You are now logged in.';
+	//	return True;
+	}else{
+		drupal_set_message(t('You are not logged in, Check your username/password.'), 'error');
+	//	return False;
+		# Error message 
+			$msg = 'You are not logged in, Check your username/password';
+	}
+	echo $msg;
+}
+
+
+
+function custom_module_block_info() {
+  $blocks = array();
+  $blocks['membership_plan'] = array(
+    'info' => t('membership_plan'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+    $blocks['become_member'] = array(
+    'info' => t('become_member'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['my_account'] = array(
+    'info' => t('lbl_myaccount'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  $blocks['listmusume'] = array(
+    'info' => t('listmusume'),
+    'cache' => DRUPAL_NO_CACHE
+  ); 
+ $blocks['seletectedplan'] = array(
+    'info' => t('seletectedplan'),
+    'cache' => DRUPAL_NO_CACHE
+  );   
+   $blocks['login'] = array(
+    'info' => t('ALREADY REGISTERED?'),
+    'cache' => DRUPAL_NO_CACHE
+  ); 
+    $blocks['footer_ticket'] = array(
+    'info' => t('footer_ticket'),
+    'cache' => DRUPAL_NO_CACHE
+  ); 
+    $blocks['edit_profile'] = array(
+    'info' => t('edit_profile'),
+    'cache' => DRUPAL_NO_CACHE
+  ); 
+  
+   $blocks['footer_user'] = array(
+    'info' => t('footer_user'),
+    'cache' => DRUPAL_NO_CACHE
+  ); 
+   $blocks['change_password'] = array(
+    'info' => t('change_password'),
+    'cache' => DRUPAL_NO_CACHE
+  );
+  
+  
+  return $blocks;
+}
+
+
+/**
+* Implements hook_block_view().
+*/
+function custom_module_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'membership_plan':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = custom_register();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;
+  case 'footer_ticket':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = footer_ticket();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;
+  case 'edit_profile':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = edit_profile();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;
+    
+case 'change_password':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = change_password();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;    
+ case 'footer_user':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = footer_user();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;   
+ case 'listmusume':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = listmusume();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;    
+   
+ case 'seletectedplan':
+      if (user_access('access content')) {
+          $block['subject'] = t('');
+          $block['content'] = seletectedplan();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;        
+case 'become_member':
+      if (user_access('access content')) {
+          $block['subject'] = t('become a member');
+          $block['content'] = become_member();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;	
+	
+	case 'login':
+      if (user_access('access content')) {
+          $block['subject'] = t('ALREADY REGISTERED?');
+          $block['content'] = custom_login();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;	
+    case 'my_account':
+      if (user_access('access content')) {
+          $block['subject'] = t('lbl_myaccount');
+          $block['content'] = my_account();
+      }
+      else {
+          $block['content'] = t('No content available.');
+      }
+    break;		
+	
+	
+	
+	
+  }
+  return $block;
+}
+
+function seletectedplan(){
+	 $selectedplan = '<div >';
+     $selectedplan .='<div class="form_wrap one mem_renewal ">';
+     $selectedplan .='<h2>selected plan</h2>';
+     $selectedplan .='<figure class="img-wrapper">';
+     $selectedplan .='<img src="themes/bartik/images/mem.png" class="img-fluid" />';
+     $selectedplan .='<h4>individual plus</h4>';
+     $selectedplan .='</figure>';
+     $selectedplan .='<a href="#" onclick="changeplan();"><span>Change Plan</span></a>';
+     $selectedplan .='<div class="clearfix"></div>';
+      $selectedplan .='</div>';
+     $selectedplan .='</div>';
+     return  $selectedplan;
+}
+
+
+/**
+ * Implements hook_block_configure()
+ */
+function custom_module_block_configure($delta = '') {
+  $form = array();
+  if ($delta == 'membership_plan') {
+    $form['membership_plan-FORM'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Enter some text to display'),
+      '#size' => 128,
+      '#maxlength' => 128,
+      '#default_value' => variable_get('YOUR-BLOCK-TEXT', 'kkkkkkkkkkkk'),
+    );
+  }
+  return $form;
+}
+ 
+/**
+ * Implements hook_block_save()
+ */
+function custom_module_block_save($delta = '', $edit = array()) {
+  if ($delta == 'membership_plan') {
+    variable_set('YOUR-BLOCK-TEXT', $edit['YOUR-BLOCK-TEXT']);
+  }
+}
+function edit_profile(){
+	$temparray = array();
+$output = theme('custom_edit_form', array('data'=> $temparray)); 
+return $output;	
+}
+
+function purchase_history(){
+	$temparray = array();
+$personid = $_SESSION["personid"];
+$allExposition = '{"SearchCriteria":{"PersonId":"'.$personid.'","Includes":{"Cancelled": false,"PersonDetails": false,"PeriodReservations": true,"Articles": true,"ContactDetails": false},"Paging": {"PageIndex": 0,"PageSize": 100, "Sorting": null }},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$url = 'https://testtickets.qm.org.qa/json/Expositions/FindOrganisedVisits/';
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+
+$output = theme('custom_history', array('data'=> $json)); 
+return $output;	
+	
+}
+function change_password(){
+  $temparray = array();
+  $output = theme('change_password', array('data'=> $temparray)); 
+  return $output;  
+}
+function request_password(){
+  $temparray = array();
+  $output = theme('request_password', array('data'=> $temparray)); 
+  return $output;	  
+}
+function my_account(){
+
+  if($GLOBALS['user']->uid > 0){
+	$myaccouunt = '<div class="form_wrap login_div">';
+              $myaccouunt .= '<ul class="sidebar">';
+                $myaccouunt .= '<li class="profile active"><a href="edit_profile">'.t("edit_profile").'</a></li>';
+                $myaccouunt .= '<li class="history"><a href="history">'.t("purchase_history").'</a></li>';
+                $myaccouunt .= '<li class="password"><a href="change_password">'.t("change_password").'</a></li>';
+                $myaccouunt .= '<li class="logout"><a href="logout">'.t("logout").'</a></li>';
+              $myaccouunt .= '</ul>';
+            $myaccouunt .= '</div>';
+					return $myaccouunt;
+}
+
+}
+
+function become_member(){
+    if($GLOBALS['user']->uid > 0){
+    }else{
+    	$mm = '<div class="col col-md-6">';
+      $mm .= '<div class="form_wrap one " style="margin-top:0px;">'; 
+            $mm .= '<p>'.t("memeber_text_det").'</p>';
+            $mm .= '<p>'.t("sign_text").'</p>';
+            $mm .= '<div class="form-group">';
+              $mm .= '<a class="btn" href="register">'.t("lbl_join").'</a>';
+            $mm .= '</div>';
+          $mm .= '</div>';
+        $mm .= '</div>';
+		return $mm;
+    }
+}
+function custom_login(){
+      if($GLOBALS['user']->uid > 0){
+    }else{
+	  $temparray =array();
+	$output = theme('custom_login_form', array('data'=> $temparray)); 
+return $output;  
+    }
+}
+function logout(){
+      module_load_include('pages.inc', 'user');
+       $GLOBALS['user']->uid = 0;
+    user_logout();
+}
+function custom_register(){
+ $membershipList = array();
+ 
+$allExposition = '{"Criteria":{},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+$url = 'https://testtickets.qm.org.qa/json/Subscriptions/FindSubscriptionArticles/';
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response  = curl_exec($ch);
+if(curl_errno($ch)){
+	$json = curl_error($ch);
+}else{
+	$json = json_decode($response, true);
+}
+curl_close($ch);
+$membershipList = $json["subscriptionArticles"];
+  $temparray =array();
+  $temparray["membershipList"] = $membershipList;
+
+$output = theme('custom_register_form', array('data'=> $temparray)); 
+return $output;   
+}

@@ -1,0 +1,127 @@
+.purchase_history {
+  h2 {
+    margin-bottom: 42px;
+    @media screen and (max-width: $break-ipad-portrait) {
+      margin-bottom: 20px;
+    }
+  }
+
+  article {
+    border-bottom: 1px solid #e1e1e1;
+    padding: 20px;
+    position: relative;
+    background: #f5f4f4;
+
+    &.active {
+      background: #fff;
+      box-shadow: 0 16px 16px 6px rgba(0,0,0,0.1);
+    }
+
+    &.last {
+      border-bottom: 0;
+    }
+
+    .box {
+      width: 50%;
+      float: left;
+      @media screen and (max-width: $break-mobile) {
+        width: 100%;
+        float: none;
+      }
+
+      &.one {
+        text-align: right;
+        @media screen and (max-width: $break-mobile) {
+          text-align: left;
+        }
+      }
+
+      h4 {
+        text-transform: uppercase;
+        margin: 0 0 20px;
+      }
+
+      p {
+        margin-bottom: 7px;
+
+        label {
+          margin-bottom: 0;
+          display: inline-block;
+          margin-left: 23px;
+          @media screen and (max-width: $break-ipad-portrait) {
+            margin-left: 15px;
+            font-size: 17px;
+          }
+
+          &.upcoming {
+            color: $black;
+            font-weight: bold;
+          }
+
+          &.qty {
+            text-transform: uppercase;
+          }
+        }
+      }
+
+      span {
+        text-transform: uppercase;
+        font-size: 16px;
+        font-weight: bold;
+        color: #000;
+        opacity: 0.3;
+
+        &.upcoming {
+          opacity: 1;
+        }
+      }
+
+      .btn {
+        width: 192px;
+        position: absolute;
+        bottom: 15px;
+        right: 16px;
+        background: $rosecolor;
+
+        &:hover {
+          background: $bluecolor;
+        }
+        @media screen and (max-width: $break-mobile) {
+          float: none;
+          position: relative;
+          bottom: inherit;
+          right: inherit;
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+
+  .pagination {
+    margin-top: 40px;
+    text-align: center;
+    @media screen and (max-width: $break-mobile) {
+      margin-bottom: 30px;
+    }
+
+    a {
+      display: inline-block;
+      padding: 0 14px;
+      margin-left: 8px;
+      font-size: 16px;
+      color: #000;
+      font-weight: bold;
+      height: 35px;
+      line-height: 35px;
+      text-transform: uppercase;
+
+      &:hover {
+        color: $rosecolor;
+      }
+
+      &.active {
+        border-bottom: 2px solid $rosecolor;
+      }
+    }
+  }
+}

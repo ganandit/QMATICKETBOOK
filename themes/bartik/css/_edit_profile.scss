@@ -1,0 +1,210 @@
+.edit_submit {
+  width: 320px;
+  margin-top: 30px;
+  @media screen and (max-width: $break-mobile) {
+    margin-bottom: 30px;
+  }
+}
+
+.sidebar {
+  margin-top: 20px;
+  margin-bottom: 0;
+
+  li {
+    padding: 18px 0;
+    position: relative;
+    padding-left: 50px;
+    @media screen and (max-width: $break-ipad-portrait) {
+      padding-left: 50px;
+    }
+    cursor: pointer;
+
+    &:hover {
+      a {
+        color: $rosecolor;
+      }
+    }
+
+    &.active {
+      a {
+        color: $rosecolor;
+        font-weight: bold;
+      }
+    }
+
+    &:before {
+      -webkit-transition: all 0.4s ease;
+      -moz-transition: all 0.4s ease;
+      -o-transition: all 0.4s ease;
+      transition: all 0.4s ease;
+      display: block;
+      position: absolute;
+      left: 0;
+      background-repeat: no-repeat;
+    }
+
+    a {
+      font-size: 18px;
+      color: #000;
+    }
+
+    &.logout {
+      padding-bottom: 0;
+      border-bottom: 0;
+
+      &:before {
+        content: '';
+        background: url("../images/logout.png");
+        width: 24px;
+        height: 24px;
+      }
+
+      &:hover {
+        &:before {
+          background: url("../images/logout-color.png");
+        }
+      }
+    }
+    &.password {
+
+
+      &:before {
+        content: '';
+        background: url("../images/password.png");
+        width: 24px;
+        height: 24px;
+      }
+
+      &:hover {
+        &:before {
+          background: url("../images/password-color.png");
+        }
+      }
+    }
+
+
+    &.history {
+      a {
+        line-height: 34px;
+      }
+
+      &:before {
+        content: '';
+        background: url("../images/invoice.png");
+        width: 24px;
+        height: 24px;
+      }
+
+      &:hover {
+        &:before {
+          background: url("../images/invoice-color.png");
+
+        }
+      }
+
+      &.active {
+        &:before {
+          background: url("../images/invoice-color.png");
+
+        }
+      }
+    }
+
+    &.profile {
+      a {
+        line-height: 38px;
+      }
+
+      &:before {
+        content: '';
+        background: url("../images/edit-profile.png");
+        width: 32px;
+        height: 32px;
+      }
+
+      &:hover {
+        &:before {
+          background: url("../images/edit-profile-color.png");
+        }
+      }
+
+      &.active {
+        &:before {
+          background: url("../images/edit-profile-color.png");
+        }
+      }
+    }
+  }
+}
+
+.mem_renewal {
+  &.new{
+  h2{
+    text-align: center;
+  }
+    h4 {
+      text-align: center;
+      margin: 0;
+      font-size: 23px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: $rosecolor;
+      width: 100%;
+    }
+    h5{
+      margin-bottom: 0px;
+    }
+  }
+
+  figure{
+    margin: 0px;
+    border-radius: 22px;
+    width: 100%;
+    height: 200px;
+    position: relative;
+    display: table;
+    h4 {
+      text-align: center;
+      margin: 0;
+      font-size: 18px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: table-cell;
+      vertical-align: middle;
+      color: #fff;
+      width: 100%;
+    }
+  }
+
+  h5 {
+    font-size: 18px;
+    text-align: center;
+    margin: 0 0 15px;
+    opacity: 0.5;
+    color: #000;
+  }
+
+  a {
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 12px;
+    color: #000;
+    display: table;
+    margin: 0 auto;
+    &:hover{
+      span{
+          border-bottom: 1px solid #000;
+      }
+
+    }
+    span{
+      display: table;
+      margin: 0 auto;
+      margin-bottom: 10px;
+      border-bottom: 1px solid $rosecolor;
+      &:last-child{
+        margin-bottom: 0px;
+      }
+    }
+  }
+}

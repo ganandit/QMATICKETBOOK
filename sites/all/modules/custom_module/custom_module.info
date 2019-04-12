@@ -1,0 +1,10 @@
+name = Custom Module
+description = Custom Module Page
+core = 7.x
+configure = admin/config/services/custom_module
+
+; Information added by Drupal.org packaging script on 2019-03-13
+version = "7.x-2.1"
+core = "7.x"
+project = "custom_module"
+datestamp = "1444082553"

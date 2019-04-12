@@ -1,0 +1,12 @@
+name = Role login page
+description = Provides the flexibility to have multiple pages with role based login functionality.
+package = Custom Login
+core = 7.x
+configure = admin/config/login/role_login_settings
+
+; Information added by Drupal.org packaging script on 2016-10-11
+version = "7.x-1.0"
+core = "7.x"
+project = "role_login_page"
+datestamp = "1476197043"
+

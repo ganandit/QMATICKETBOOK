@@ -1,0 +1,273 @@
+.membership_head {
+  li {
+    a {
+      line-height: 45px;
+    }
+  }
+}
+
+section {
+  &.membeship_body {
+    padding: 0 0 65px;
+
+    h5.expiry {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 0;
+    }
+
+    .pastype {
+      border-radius: 15px;
+      padding-top: 22px;
+      width: 100%;
+      margin-top: 40px;
+      position: relative;
+      box-shadow: 0 0 30px 10px rgba(0,0,0,0.1);
+
+      h2 {
+        text-align: center;
+        border-top: 1px solid #000;
+        border-bottom: 1px solid #000;
+        margin: 0 20px;
+        padding: 15px 0;
+      }
+
+      h4 {
+        text-transform: uppercase;
+        text-align: center;
+        font-weight: bold;
+        font-size: 24px;
+        margin: 0 0 17px;
+      }
+
+      input[type=radio] {
+        display: none;
+      }
+
+      input[type=radio] + label {
+        appearance: none;
+        -webkit-appearance: none;
+        background: url("../images/checkbox.png");
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        top: 13px;
+        right: 17px;
+        margin: 0;
+      }
+
+      input[type=radio]:checked + label {
+        background: url("../images/checkbox-color.png");
+        width: 30px;
+        height: 30px;
+      }
+
+      .box-img {
+        background: url("../images/basic.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 100%;
+        height: 117px;
+        background-position: center;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+
+        &.two {
+          background: url("../images/individual.jpg");
+        }
+
+        &.three {
+          background: url("../images/family.jpg");
+        }
+
+        h2 {
+          vertical-align: middle;
+          text-align: center;
+          display: table-cell;
+          color: #fff;
+        }
+      }
+
+      .link {
+        text-align: center;
+        margin: 0 auto;
+        width: 83px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        font-weight: 400;
+        display: block;
+        border-bottom: 1px solid transparent;
+      }
+
+      ul {
+        margin: 0;
+        text-align: center;
+        margin-top: 12px;
+
+        li {
+          font-size: 16px;
+          color: #000;
+          text-align: center;
+          border-bottom: 1px solid #f1f1f1;
+          padding: 12px 15px;
+          display: inline-block;
+            @media screen and (max-width: $break-ipad-portrait){
+              padding: 5px 0px;
+            }
+
+          &:last-child {
+            border-bottom: 0;
+          }
+        }
+      }
+
+      .btn {
+        width: 60%;
+        margin: 0 auto;
+        position: relative;
+        top: 30px;
+        &:hover{
+          background: $rosecolor;
+        }
+      }
+    }
+
+    .panel {
+      .sub_wrap {
+        max-width: 100%;
+        margin-top: 40px;
+
+        @media screen and (max-width: $break-ipad-portrait) {
+
+        }
+        @media screen and (max-width: $break-mobile) {
+
+          margin-top: 0;
+        }
+
+        .form-group {
+          display: block;
+          margin-top: 10px;
+
+          &.phone-group {
+            margin-top: 30px;
+          }
+
+          label {
+            min-width: 125px;
+            margin-bottom: 0;
+            @media screen and (max-width: $break-ipad-landscape) {
+              min-width: 124px;
+            }
+            @media screen and (max-width: $break-mobile) {
+              min-width: auto;
+              display: block;
+            }
+          }
+
+          .form-control {
+            width: 100%;
+
+            &.phone {
+              width: 100%;
+              @media screen and (max-width: $break-mobile) {
+                width: 100%;
+              }
+            }
+          }
+
+          select {
+            &.form-control {
+              width: 55%;
+              margin-right: 0;
+              @media screen and (max-width: $break-ipad-landscape) {
+                width: 54%;
+              }
+              @media screen and (max-width: $break-ipad-portrait) {
+                width: 61%;
+              }
+              @media screen and (max-width: $break-mobile) {
+                width: 100%;
+              }
+
+              &.full-width {
+                width: 100%;
+                margin-right: 0;
+                @media screen and (max-width: $break-mobile) {
+                  margin-right: 0;
+                }
+              }
+            }
+          }
+        }
+
+        h4 {
+          text-transform: uppercase;
+          font-size: 18px;
+          font-weight: bold;
+          color: $rosecolor;
+        }
+
+        .newsleter_ul {
+          margin-top: 30px;
+
+          li:last-child {
+            margin-bottom: 0;
+          }
+        }
+
+        .btn {
+          background: $rosecolor;
+
+          &:hover {
+            background: $bluecolor;
+          }
+        }
+      }
+      &.four{
+        .sub_wrap{
+          h4{
+            color: #000;
+          }
+        }
+      }
+      .paymnet_suc {
+
+        article {
+          margin-bottom: 0;
+          padding-bottom: 0px;
+          border-bottom: 0px;
+
+          p {
+            margin-bottom: 0;
+            text-align: left;
+            margin-top: 10px;
+            font-size: 16px;
+            &.pass {
+              text-transform: uppercase;
+            }
+
+            &:first-child {
+              margin-top: 30px;
+            }
+          }
+        }
+
+        .btn {
+          margin: 0 auto;
+          background: $rosecolor;
+          border: 0;
+          color: #fff;
+          float: none;
+          margin-top: 30px;
+          display: block;
+
+          &:hover {
+            background: $black;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+}

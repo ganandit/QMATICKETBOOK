@@ -1,0 +1,175 @@
+<?php
+/**
+ * @file
+ */
+/**
+ * Implements hook_help().
+ */
+function role_login_page_help($page, $arg) {
+  switch ($page) {
+    case 'admin/help#role_login_page':
+      return t('This module is designed to create multiple login pages based on roles.
+                The new login page will have everything configurable from the backend, i.e, "username field label", "password field label", "Error messages" and more.
+                For example : If the new login page will have role "A" assigned to it then the users with role "A" can only login through this page.');
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function role_login_page_menu() {
+  $items['admin/config/login/role_login_settings'] = array(
+    'title' => 'Role login settings',
+    'description' => 'Configure which roles will be associated with which pages.',
+    'access arguments' => array('administer role login settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_role_login_page_settings'),
+    'file' => 'role_login_page.admin.inc',
+  );
+  $items['admin/config/login/role_login_settings/list'] = array(
+    'title' => 'Role login settings list',
+    'description' => 'List of settings of role login page',
+    'access arguments' => array('administer role login settings'),
+    'page callback' => '_role_login_page_settings_list',
+    'file' => 'role_login_page.pages.inc',
+  );
+  $items['admin/config/login/role_login_settings/edit/%'] = array(
+    'title' => 'Role login settings edit',
+    'description' => 'Configure which roles will be associated with which pages.',
+    'access arguments' => array('administer role login settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_role_login_page_settings_edit', 5),
+    'file' => 'role_login_page.admin.inc',
+  );
+  $items['admin/config/login/role_login_settings/delete/%'] = array(
+    'title' => 'Role login settings delete',
+    'access arguments' => array('administer role login settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_role_login_page_settings_delete', 5),
+    'file' => 'role_login_page.admin.inc',
+  );
+  $login_menu_arr = db_select('role_login_page_settings', 'rlps')
+      ->fields('rlps')
+      ->execute()
+      ->fetchAll();
+  foreach ($login_menu_arr as $login_menu_data) {
+    $items[$login_menu_data->url] = array(
+      'title' => check_plain($login_menu_data->page_title),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('_role_login_page_loginmenu_callback', $login_menu_data),
+      'access callback' => '_role_login_page_check_anonymous',
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implements permission for the custom menu created.
+ */
+function _role_login_page_check_anonymous() {
+  return (user_is_anonymous()) ? TRUE : FALSE;
+}
+
+/**
+ * Implements hook_perm().
+ */
+function role_login_page_permission() {
+  return array(
+    'administer role login settings' => array(
+      'title' => t('Administer Role Login Setings'),
+      'description' => t('Configure which roles will be associated with which pages.')
+    )
+  );
+}
+
+/**
+ * Implements login form for the custom menu created.
+ */
+function _role_login_page_loginmenu_callback($form, &$form_state, $loginmenu_data) {
+  $form = array();
+  $username_label = ($loginmenu_data->username_label) ? check_plain($loginmenu_data->username_label) : 'User Name or Email';
+  $password_label = ($loginmenu_data->password_label) ? check_plain($loginmenu_data->password_label) : 'Password';
+  $submit_btn_label = ($loginmenu_data->submit_text) ? check_plain($loginmenu_data->submit_text) : 'Login';
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t($username_label),
+    '#required' => TRUE,
+  );
+  $form['pass'] = array(
+    '#type' => 'password',
+    '#title' => t($password_label),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t($submit_btn_label),
+  );
+  if (isset($_SESSION['loginmenu_data'])) {
+    unset($_SESSION['loginmenu_data']);
+  }
+  $_SESSION['loginmenu_data'] = $loginmenu_data;
+  return $form;
+}
+/**
+ * Custom login form validation.
+ */
+function _role_login_page_loginmenu_callback_validate($form, &$form_state) {
+  $loginmenu_data = $_SESSION['loginmenu_data'];
+  $roles = $loginmenu_data->roles;
+  $roles = explode(',', $roles);
+  $role_mismatch_error = ($loginmenu_data->role_mismatch_error_text) ? check_plain($loginmenu_data->role_mismatch_error_text) : 'You do not have permissions to login through this page.';
+  $invalid_credentials_error = ($loginmenu_data->invalid_credentials_error_text) ? check_plain($loginmenu_data->invalid_credentials_error_text) : 'Invalid credentials.';
+  $username = $form_state['values']['name'];
+  $password = $form_state['values']['pass'];
+  if ($uid = user_authenticate($username, $password)) {
+    if (!_role_login_page_validate_login_roles($uid, $roles)) {
+      form_set_error('name', t($role_mismatch_error));
+    }
+  }
+  else {
+    form_set_error('name', t($invalid_credentials_error));
+  }
+}
+
+/**
+ * Submit custom login form .
+ */
+function _role_login_page_loginmenu_callback_submit($form, &$form_state) {
+  $loginmenu_data = $_SESSION['loginmenu_data'];
+  $roles = $loginmenu_data->roles;
+  $roles = explode(',', $roles);
+  $role_mismatch_error = ($loginmenu_data->role_mismatch_error_text) ? check_plain($loginmenu_data->role_mismatch_error_text) : 'You do not have permissions to login through this page.';
+  $invalid_credentials_error = ($loginmenu_data->invalid_credentials_error_text) ? check_plain($loginmenu_data->invalid_credentials_error_text) : 'Invalid credentials.';
+  $username = $form_state['values']['name'];
+  $password = $form_state['values']['pass'];
+  $redirect_path = ($loginmenu_data->redirect_path) ? $loginmenu_data->redirect_path : '';
+  if ($uid = user_authenticate($username, $password)) {
+    if (_role_login_page_validate_login_roles($uid, $roles)) {
+      global $user;
+      $user = user_load($uid);
+      drupal_session_regenerate();
+      drupal_goto($redirect_path);
+      return TRUE;
+    }
+    else {
+      form_set_error('name', t($role_mismatch_error));
+    }
+  }
+  else {
+    form_set_error('name', t($invalid_credentials_error));
+    return FALSE;
+  }
+}
+
+/**
+ * Validate the allowed roles for this page.
+ */
+function _role_login_page_validate_login_roles($uid, $roles) {
+  $user = user_load($uid);
+  foreach ($user->roles as $role_index => $role_val) {
+    if (in_array($role_index, $roles)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}

@@ -1,0 +1,58 @@
+Login Module:
+URL : http://localhost/qm/login
+Module : custom_module (sites/all/modules/custom_module) 
+Form : custom_login_form (themes/bartik/templates/custom_module)
+Menu name >> login
+Call back function : custom_login
+Submit function : loginsubmit
+API: https://testtickets.qm.org.qa/Json/General/AuthenticateUser
+To get drupal user detail >> user_load_by_mail();
+If user not available in drupal table >> user_save();
+
+
+Strings Used: Admin >> Configuration >> String overrides >> (Tab Arabic & English)
+ALREADY REGISTERED?
+error_text
+lbl_username
+lbl_password
+lbl_login
+Request new password
+
+
+=========================================================================================================
+
+Logout Implementation:
+Module : custom_module (sites/all/modules/custom_module) 
+Menu name >> logout
+Call back function : logout
+drupal function >> user_logout()
+
+==========================================================================================================
+User Create:
+URL : http://localhost/qm/register
+Module : custom_module (sites/all/modules/custom_module) 
+Form : custom_register_form (themes/bartik/templates/custom_module)
+Menu name >> register
+Call back function : custom_register
+
+Submit function : loginsubmit
+
+Drupal user save :  user_save();
+verify_username : verify_username();
+API:
+Subscriptions : https://testtickets.qm.org.qa/json/Subscriptions/FindSubscriptionArticles/
+Save USer : https://testtickets.qm.org.qa/Json/General/SavePerson/
+verify_username : https://testtickets.qm.org.qa/Json/General/FindPerson/
+
+
+If user not available in drupal table >> user_save();
+
+Strings Used: Admin >> Configuration >> String overrides >> (Tab Arabic & English)
+pass_type_error
+pass_type
+pass_select
+select_plan
+select_info
+select_payment
+select_next
+============================================================================================================

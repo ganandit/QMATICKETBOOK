@@ -1,0 +1,35 @@
+%hstyle {
+  text-transform: uppercase;
+  color: #000;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+}
+
+%h6_style {
+  font-size: 14px;
+  @extend %hstyle;
+}
+
+%h1_style {
+  font-size: 32px;
+  @extend %hstyle;
+}
+
+%h2_style {
+  font-size: 28px;
+  @extend %hstyle;
+  @media screen and (max-width: $break-ipad-landscape) {
+    font-size: 25px;
+  }
+  @media screen and (max-width: $break-ipad-portrait) {
+    font-size: 20px;
+  }
+}
+
+%h3_style {
+  font-size: 18px;
+  font-weight: 600;
+  @extend %hstyle;
+}
