@@ -249,9 +249,9 @@ $databases = array (
   array (
     'default' => 
     array (
-      'database' => 'qm',
+      'database' => 'qmawebsite',
       'username' => 'root',
-      'password' => '',
+      'password' => 'root@123',
       'host' => 'localhost',
       'port' => '',
       'driver' => 'mysql',

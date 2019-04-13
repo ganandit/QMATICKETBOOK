@@ -1,49 +1,107 @@
 $(document).ready(function () {
-  jQuery(".img-wrapper").each(function () {
-      var imageUrl = jQuery(this).find('img').attr("src");
-      jQuery(this).find('img').css("visibility", "hidden");
-      jQuery(this).css('background-image', 'url(' + imageUrl + ')').css("background-repeat", "no-repeat").css("background-size", "cover").css("background-position", "50% 50%");
-  });
-  //learn more link clikc
-  $('.learn_more_link').on("click",function(e){
-    e.preventDefault();
-    $('.learn_more').toggle();
-    if($(this).text()=='+ Read More'){
-      $(this).text('- Read Less');
+
+$("#cemail").change(function () {
+  var username = $("#cemail").val();
+  $.ajax({url: "verifyusername?username="+username, success: function(result){
+	if(result == 'Username already exits'){
+	   $('.error_div').show();
+	   isValid = false;
+	   $('.error_div').text(username+", "+result);
+	   $( "#cemail" ).val('');
+	   $( "#cemail" ).focus(); 						
+	}else{
+	   $('.error_div').hide();
+	   $('.error_div').text("");	
+	   $(".next_btn").attr("disabled", false);		
+	}
+  }});
+});
+
+$('#cpass, #cnfpass').change(function () {
+  var pass = $('#cpass').val();
+  var cpass = $('#cnfpass').val();
+  if(pass != '' && cpass != ''){ 
+     if(pass == cpass) {
+	var verifypass = new RegExp("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%&*])[a-zA-Z0-9!@#$%&*]+$");
+	if(verifypass.test(cpass)){
+	   $('.error_div').hide(); $('.error_div').text("");
+	}else{
+	   $('.error_div').show(); isValid = false;
+	   $('.error_div').text("You have to enter at least 6 digit Password. consists of 1 number, 1 special character");
+        }
+     }else {
+       $('.error_div').show();
+       isValid = false;
+       $('.error_div').text("Password missmatch");
+       $('#cpass').val(''); $('#cnfpass').val('');
+       $('#cpass').focus();		
     }
-    else{
-        $(this).text('+ Read More');
-    }
-  });
+  }
+});
+
+$("#cemail").change(function () {
+  var username = $("#cemail").val();
+  $.ajax({url: "verifyusername?username="+username, success: function(result){
+        if(result == 'Username already exits'){
+           $('.error_div').show();
+           isValid = false;
+           $('.error_div').text(username+", "+result);
+           $( "#cemail" ).val('');
+           $( "#cemail" ).focus();
+        }else{
+           $('.error_div').hide();
+           $('.error_div').text("");                  
+           $(".next_btn").attr("disabled", false);
+        }
+  }});
+});
+
+
+jQuery(".img-wrapper").each(function () {
+   var imageUrl = jQuery(this).find('img').attr("src");
+   jQuery(this).find('img').css("visibility", "hidden");
+   jQuery(this).css('background-image', 'url(' + imageUrl + ')').css("background-repeat", "no-repeat").css("background-size", "cover").css("background-position", "50% 50%");
+});
+
+//learn more link clikc
+$('.learn_more_link').on("click",function(e){
+   e.preventDefault();
+   $('.learn_more').toggle();
+   if($(this).text()=='+ Read More'){
+	$(this).text('- Read Less');
+   }else{
+	$(this).text('+ Read More');
+   }
+});
+
 //mobile menu
 $('.mobile-menu').on("click",function(e){
   e.preventDefault();
   $('header').toggleClass('open');
   $('body').toggleClass('overflow')
 });
-  //membship plan more membership_more_details
-  $('.membership_more_details').on("click",function(e){
-    e.preventDefault();
-    $(this).prev().toggle();
-  });
 
-  //add ticket read More
-  $('.ticket_selection .link').on("click",function(e){
+//membship plan more membership_more_details
+$('.membership_more_details').on("click",function(e){
+   e.preventDefault();
+   $(this).prev().toggle();
+});
+
+//add ticket read More
+$('.ticket_selection .link').on("click",function(e){
     e.preventDefault();
     $(this).parent().next().toggle();
     if($(this).text()=='+Read More'){
       $(this).addClass('open');
       $(this).text('-Read Less');
-    }
-    else{
+    }else{
       $(this).removeClass('open');
-        $(this).text('+Read More');
+      $(this).text('+Read More');
     }
+});
 
-  });
-
-  //selet no of ticket up
-  $(".number-input button.up").bind('keyup mouseup', function () {
+//selet no of ticket up
+$(".number-input button.up").bind('keyup mouseup', function () {
     this.parentNode.querySelector('input[type=number]').stepUp();
     var $val=$(this).parent().find('input[type=number]').val();
     var $head=$(this).closest('article').find('.perhead').val();
@@ -88,15 +146,14 @@ $('.quantity').on('change keyup  ',function(){
          altField: '#ticketDate',
           altFormat: 'd M'
       });
-  }
-  else{
+  }else{
     $( ".datepicker" ).datepicker({
         numberOfMonths: 2,
          minDate: new Date(),
          altField: '#ticketDate',
           altFormat: 'd M'
       });
-  }
+ }
 
 
 
@@ -314,47 +371,40 @@ $('#change_tiket').on("click",function(e){
     $('.panel').eq(1).addClass("active");
 });
 
-  //membership plan next button click
-   $('#membeship_next_btn').on("click",function(e){
-     e.preventDefault();
-     var index=$('.panel:visible').index();
+//membership plan next button click
+$('#membeship_next_btn').on("click",function(e){
+   e.preventDefault();
+   var index=$('.panel:visible').index();
 
-     var curStep=$("div.panel").not(":hidden");
-     var textVal = curStep.find(".textval");
-     var Select=curStep.find(".select_val");
-     var radioVal=curStep.find(".radiobtn");
-     var catVal=curStep.find(".choosen");
-     var isValid = true;
+   var curStep=$("div.panel").not(":hidden");
+   var textVal = curStep.find(".textval");
+   var Select=curStep.find(".select_val");
+   var radioVal=curStep.find(".radiobtn");
+   var catVal=curStep.find(".choosen");
+   var isValid = true;
 
-
-       //checkbox validation
-        if(catVal.length>0){
-          if (curStep.find(".choosen:checked").length ==catVal.length)
-            {
+   //checkbox validation
+   if(catVal.length>0){
+      if (curStep.find(".choosen:checked").length ==catVal.length){
                 $('.error_div').hide();isValid = true;
-            }
-            else
-            {
+      }else{
                   $('.error_div').show();isValid = false;
                   $(window).scrollTop($('.error_div').offset().top+300);
-            }
-        }
+      }
+   }
 
-
-       //radio validation
-        if(radioVal.length>0){
-          if (curStep.find(".radiobtn:checked").length ==1)
-            {
+   //radio validation
+   if(radioVal.length>0){
+      if (curStep.find(".radiobtn:checked").length ==1){
                 $('.error_div').hide();isValid = true;
-            }
-            else
-            {
+      }else{
                   $('.error_div').show();isValid = false;
                   $(window).scrollTop($('.error_div').offset().top+300);
-            }
-        }
-          //select box validation
-          curStep.find(".select_val").removeClass("has-error");
+      }
+   }
+
+   //select box validation
+   curStep.find(".select_val").removeClass("has-error");
 
           for(var i=0; i<Select.length; i++){
               var selectValue=Select[i].value;

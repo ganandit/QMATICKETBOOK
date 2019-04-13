@@ -13,6 +13,15 @@ require_once ('custom_module.theme.inc');
  */
 function custom_module_menu() {
   $items = array();
+
+   $items['verifyusername'] = array(
+    'title' => '',
+    'page callback' => 'validateusername',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+
   $items['registeruser'] = array(
     'title' => 'Register',
     'page callback' => 'drupal_get_form',
@@ -476,20 +485,18 @@ function footer_user(){
      $output .= '<ul>';
         $output .='<li class="active"><a href="#" class="">1. Plan</a>';
          $output .= '<div class="details_div" style="display:none">';
-          $output .= ' <p>13 march</p>';
-           $output .=' <p>15:15</p>';
+          $output .= ' <p class="memberPlan"></p>';
          $output .= '</div>';
        $output .= '</li>';
        $output .= '<li><a href="#" class="">2. Info</a>';
          $output .= '<div class="details_div" style="display:none">';
-           $output .=' <p>info test</p>';
-           $output .= '<p>test@gmail.com</p>';
-           $output .= '<p>0132456789</p>';
+           $output .= '<p class="memberEmail"></p>';
+           $output .= '<p class="memberPhone"></p>';
           $output .='</div>';
        $output .=' </li>';
         $output .='<li><a href="#" class="">3. Payment</a>';
           $output .='<div class="details_div" style="display:none">';
-           $output .= '<p>QR 150</p>';
+           $output .= '<p class="memberPayment"></p>';
          $output .= '</div>';
        $output .= '</li>';
 
@@ -628,6 +635,18 @@ foreach($json['expositions'] as $k => $v){
 }
 
 
+function validateusername(){
+	$username = $_REQUEST['username'];
+        $checkUser = '{"Criteria":{"UserName":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+        $apiResponse = APIcallform($checkUser, 'https://testtickets.qm.org.qa/Json/General/FindPerson/');
+        $allow_user = "true";
+        if(count($apiResponse['result']) > 0){
+                $allow_user = "Username already exits"; #False
+        }
+        echo $allow_user;
+#        drupal_set_message(t('Username already exits, Try another name.'), 'error');
+}
+
 function verify_username($username){
 	$checkUser = '{"Criteria":{"UserName":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
 	$apiResponse = APIcallform($checkUser, 'https://testtickets.qm.org.qa/Json/General/FindPerson/');
@@ -662,7 +681,9 @@ function savecustomer(){
 
 
  if($apiuserid !=""){
-  	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+	$jsonData = '{"Person":{"Info2":"'.$Nationality.'","Code":"'.$code.'","Settings":{"SubscribeMailingList":'.$mailsubscr.'},"Info1":"'.$title.'","name":{"last":"'.$lastname.'","first":"'.$firstname.'"},"cellPhone":"'.$phone.'","email":"'.$email.'","address":{"Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'","country":"'.$country.'"},"Info3":"'.$Newsletter.'","credential":{"username":"'.$email.'","Password":"'.$password.'"},"Language":"EN","Info4":"'.$country.'"},"Context":{"Password":"'.$apipassword.'","ShopId":"'.$apishopid.'","Language":"'.$apilanguage.'"},"Options":{"IgnoreDuplicates":true,"CreateZipcodes":true,"SkipAgeValidation":false,"IgnoreCredentials":false}}';
+
+#  	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
      
  }else{
     	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
@@ -1352,42 +1373,47 @@ function become_member(){
     }
 }
 function custom_login(){
-      if($GLOBALS['user']->uid > 0){
-    }else{
-	  $temparray =array();
-	$output = theme('custom_login_form', array('data'=> $temparray)); 
-return $output;  
-    }
-}
-function logout(){
-      module_load_include('pages.inc', 'user');
-       $GLOBALS['user']->uid = 0;
-    user_logout();
-}
-function custom_register(){
- $membershipList = array();
- 
-$allExposition = '{"Criteria":{},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-$url = 'https://testtickets.qm.org.qa/json/Subscriptions/FindSubscriptionArticles/';
+  if($GLOBALS['user']->uid > 0){
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS,$allExposition);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-$response  = curl_exec($ch);
-if(curl_errno($ch)){
-	$json = curl_error($ch);
-}else{
-	$json = json_decode($response, true);
+  }else{
+    $temparray =array();
+    $output = theme('custom_login_form', array('data'=> $temparray)); 
+    return $output;  
+  }
 }
-curl_close($ch);
-$membershipList = $json["subscriptionArticles"];
+
+function logout(){
+  module_load_include('pages.inc', 'user');
+  $GLOBALS['user']->uid = 0;
+  user_logout();
+}
+
+function custom_register(){
+  $membershipList = array();
+  $allExposition = '{"Criteria":{},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+  $url = 'https://testtickets.qm.org.qa/json/Subscriptions/FindSubscriptionArticles/';
+  $json = APIcallform($allExposition, 'https://testtickets.qm.org.qa/json/Subscriptions/FindSubscriptionArticles/');	
+  $membershipList = $json["subscriptionArticles"];
+
+  $countryList = array();
+  $countryRequest = '{"SearchCriteria": {},"Context": {"Language": "EN","ShopId": "6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password": "dAW2zk4qP2ugZguD"}}';
+  $jsonC = APIcallform($countryRequest, 'https://testtickets.qm.org.qa/json/General/ListCountries/'); 
+  $countrynames = array();
+  foreach($jsonC['result'] as $k => $v){
+	$countrynames[] = $v['name'];	
+  }
+
+  $titleList = array();
+  $titleRequest = '{"TitleCriteria":{"Paging":{"PageIndex":0,"PageSize":10000,"Sorting":null}},"Context":{"Language":"EN","ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD"}}';
+  $jsonT = APIcallform($countryRequest, 'https://testtickets.qm.org.qa/json/General/ListPersonTitles/');
+#print_r($jsonT['titleResult']);
+  foreach($jsonT['titleResult'] as $u=>$ue){
+	$titleList[] = $ue['shortName'];
+  }
   $temparray =array();
   $temparray["membershipList"] = $membershipList;
-
-$output = theme('custom_register_form', array('data'=> $temparray)); 
-return $output;   
+  $temparray["countryList"] = $countrynames;
+  $temparray['titleList'] = $titleList;
+  $output = theme('custom_register_form', array('data'=> $temparray)); 
+  return $output;   
 }
