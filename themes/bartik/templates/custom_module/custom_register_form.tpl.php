@@ -39,8 +39,9 @@
 		   <div class="error_div" style="display:none"><?php echo t("fill_fields") ?></div>
 		   <div class="fieldvalidation" style="display:none"> </div>	
 		   <form method="post">
+				
 			<div class="row">
-
+				<input type="hidden" class="form-control textval" name="cusername" id="cusername" />
 				<!-- <div class="col col-md-6">
 					<div class='form-group'>
 					<label><?php #echo t("lbl_username") ?> *</label>
@@ -168,8 +169,8 @@
 			<br />
 			<h4><?php echo t("newsletter") ?></h4>
 			<ul class="newsleter_ul">
-			    <li><input type="checkbox" class="choosen" checked /><span><?php echo t("newsletterchk") ?><span></li>
-			    <li><input type="checkbox" class="choosen" checked /><span><?php echo t("accept_all") ?> <a href="#"><?php echo t("terms_and_conditions") ?></a><span></li>
+			    <li><input type="checkbox" class="choosen" name="newsletter" id="newsletter" value="yes" checked /><span><?php echo t("newsletterchk") ?><span></li>
+			    <li><input type="checkbox" class="choosen" name="terms" id="terms" value="yes" checked /><span><?php echo t("accept_all") ?> <a href="#"><?php echo t("terms_and_conditions") ?></a><span></li>
 			</ul>
 		   </form>
 		   </div>
@@ -271,22 +272,30 @@
        
    }
   function registercustomer(){
-	var cemail = $("#cemail").val();
-	var cpass = $("#cpass").val();
-	var country = $("#country").val();
-	var cusername = $("#cusername").val();
-	var firstname = $("#firstname").val();
-	var lastname = $("#lastname").val();
-	var mobile = $("#mobile").val();
-	var street = $("#street").val();
-	var city = $("#city").val();
-	var zipcode = $("#zipcode").val();
 	var amount = $("#totalcost").html();
 	var memebership = $("#selmembership").val();
 	var apiuserid = $("#apiuserid").val();
-
-        $.ajax({url: "savecustomer?apiuserid="+apiuserid+"&memebership="+memebership+"&amount="+amount+"&cemail="+cemail+"&cpass="+cpass+"&country="+country+"&cusername="+cusername+"&firstname="+firstname+"&lastname="+lastname+"&mobile="+mobile+"&street="+street+"&city="+city+"&zipcode="+zipcode, success: function(result){
-                //alert(result);
+	var cemail = $("#cemail").val();
+	var cusername = cemail;
+	var cpass = $("#cpass").val();	
+	var ctitle = $("#ctitle").val();
+	var firstname = $("#firstname").val();
+	var lastname = $("#lastname").val();
+	var city = $("#city").val();
+	var street = $("#street").val();
+	var zipcode = $("#zipcode").val();
+	var country = $("#country").val();
+	var natioanlity = $("#natioanlity").val();
+	var countrycode = $("#countrycode").val();
+	var mobile = $("#mobile").val();
+	var SubscribeMailingList = "false";
+        var newsletter = "no"; 
+	if($("#newsletter").prop('checked') == true){
+    	    var newsletter = "yes";
+	    SubscribeMailingList = "true";
+	}
+	var terms = $("#terms").val();
+        $.ajax({url: "savecustomer?apiuserid="+apiuserid+"&memebership="+memebership+"&amount="+amount+"&cemail="+cemail+"&cpass="+cpass+"&country="+country+"&cusername="+cusername+"&firstname="+firstname+"&lastname="+lastname+"&mobile="+mobile+"&street="+street+"&city="+city+"&zipcode="+zipcode+"&natioanlity="+natioanlity+"&newsletter="+newsletter+"&SubscribeMailingList="+SubscribeMailingList+"&terms="+terms+"&countrycode="+countrycode+"&ctitle="+ctitle, success: function(result){
             if(result == "Username already exits"){
                    $( "#member_change_information" ).trigger( "click" );
                    $("#membeship_next_btn").show();
@@ -296,7 +305,6 @@
                    $("#paymenturl").attr("href",obj.baseurl+""+obj.queryurl);
             }
         }});
-    
    } 
    
    function buttonclickevent(){

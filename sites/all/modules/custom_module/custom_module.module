@@ -124,81 +124,59 @@ $items['loginsubmit'] = array(
     return $items;
 }
 
-
-
 function updateusercheckout(){
-
    $vpc_ReceiptNo= "";
    $vpc_OrderInfo = $_REQUEST["vpc_OrderInfo"];
    if(isset($_REQUEST["vpc_ReceiptNo"])){
        $vpc_ReceiptNo = $_REQUEST["vpc_ReceiptNo"];
-  }
+   }
    $vpc_TransactionNo = $_REQUEST["vpc_TransactionNo"];
    $vpc_TxnResponseCode = $_REQUEST["vpc_TxnResponseCode"];
    $vpc_VerType = $_REQUEST["vpc_VerType"];
    if(isset($_REQUEST["vpc_VerToken"])){
        $vpc_VerToken = $_REQUEST["vpc_VerToken"];
-  }   
+   }   
    $vpc_Message = $_REQUEST["vpc_Message"];
    $amount = $_REQUEST["vpc_Amount"]/100;
    if( $vpc_Message == "Approved"){
-     global $basketdetails;
-$datemm = array();
-
-$lockTicketarr = $basketdetails; 
-$lockTicketarr = $_SESSION["basketdetails"]; 
-
-$userId = $_SESSION["personid"];	#'SESSION user value';
-
-      $checkoutBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.json_encode($lockTicketarr).',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-
-
-    //  echo $checkoutBasket;
-
-      $url = 'https://testtickets.qm.org.qa/json/General/CheckoutBasket/';
-
-
-      //echo $validateBasket;
-
-
-      $ch = curl_init();
-      curl_setopt($ch, CURLOPT_URL, $url);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
-      curl_setopt($ch, CURLOPT_POST, 1);
-      curl_setopt($ch, CURLOPT_POSTFIELDS,$checkoutBasket);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      $response  = curl_exec($ch);
-      if(curl_errno($ch)){
+    global $basketdetails;
+	$datemm = array();
+	$lockTicketarr = $basketdetails; 
+	$lockTicketarr = $_SESSION["basketdetails"]; 
+	$userId = $_SESSION["personid"];	#'SESSION user value';
+    $checkoutBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.json_encode($lockTicketarr).',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+    $url = 'https://testtickets.qm.org.qa/json/General/CheckoutBasket/';
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS,$checkoutBasket);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response  = curl_exec($ch);
+    if(curl_errno($ch)){
         $json = curl_error($ch);
-      }else{
+    }else{
         $json = json_decode($response, true);
-      }
-      curl_close($ch);
-$mm = json_decode($response);
- $kk = $mm->result;
-
-$mm1 = $kk->salesItems;
-$mmtext = "";
+    }
+    curl_close($ch);
+    $mm = json_decode($response);
+    $kk = $mm->result;
+    $mm1 = $kk->salesItems;
+    $mmtext = "";
 	foreach ($mm1 as $k => $v) {
 		$barcode = $v->barcodes;
-     $datemm['barcode'] = $barcode;
-
+        $datemm['barcode'] = $barcode;
 	}
-
-
-
    }
-  $datemm['vpc_TransactionNo'] = $vpc_TransactionNo;
-  $datemm['vpc_ReceiptNo'] = $vpc_ReceiptNo;
-  $datemm['vpc_Message'] = $vpc_Message;
-  
-  $datemm['amount'] = $amount;
-
-    $output = theme('updatecheckout', array('data'=> $datemm)); 
-  return $output;	 
-
+   $datemm['vpc_TransactionNo'] = $vpc_TransactionNo;
+   $datemm['vpc_ReceiptNo'] = $vpc_ReceiptNo;
+   $datemm['vpc_Message'] = $vpc_Message;
+   $datemm['amount'] = $amount;
+   $output = theme('updatecheckout', array('data'=> $datemm)); 
+   return $output;	 
 }
+
 function updatecheckout(){
  // print_r($_REQUEST);
   $vpc_ReceiptNo= "";
@@ -648,7 +626,7 @@ function validateusername(){
 }
 
 function verify_username($username){
-	$checkUser = '{"Criteria":{"UserName":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+	$checkUser = '{"Criteria":{"email":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
 	$apiResponse = APIcallform($checkUser, 'https://testtickets.qm.org.qa/Json/General/FindPerson/');
 	$allow_user = True;
 	if(count($apiResponse['result']) > 0){
@@ -656,210 +634,118 @@ function verify_username($username){
 	}
 	return $allow_user;
 }
+
 function updatepassword(){
    $personuid = $_SESSION["personuid"]; 
     	$jsonData = '{"Person":"Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
 
 }
 function savecustomer(){
-    $mail = $_REQUEST["cemail"];
-	$password = $_REQUEST["cpass"];
-	$country = $_REQUEST["country"];
-	$country = $_REQUEST["country"];
-	$username = $_REQUEST["cusername"];
-	$firstname = $_REQUEST["firstname"];
-	$lastname = $_REQUEST["lastname"];
-	$phone = $_REQUEST["mobile"];
-	$streetname = $_REQUEST["street"];
-	$town = $_REQUEST["city"];
-	$zipcode = $_REQUEST["zipcode"];
   $selemem = $_REQUEST["memebership"];
-	$apiuserid = $_REQUEST["apiuserid"];
-     $postbox ='2777';  
-
-
-
-
+  $Nationality = $_REQUEST["natioanlity"];
+  $code = "";#$_REQUEST[""];
+  $mailsubscr = $_REQUEST["newsletter"];
+  $title  = $_REQUEST["ctitle"]; 	  	 
+  $firstname = $_REQUEST["firstname"];
+  $lastname = $_REQUEST["lastname"];
+  $phone = $_REQUEST["mobile"];
+  $email = $_REQUEST["cemail"];  
+  $streetname = $_REQUEST["street"];
+  $town = $_REQUEST["city"];
+  $zipcode = $_REQUEST["zipcode"];
+  $country = $_REQUEST["country"];
+  $Newsletter = $_REQUEST["newsletter"];
+  $password = $_REQUEST["cpass"];
+  $SubscribeMailingList = $_REQUEST["SubscribeMailingList"];
+  $apiuserid = $_REQUEST["apiuserid"]; 	
+  $apipassword = 'dAW2zk4qP2ugZguD';
+  $apishopid = '6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134';
+  $apilanguage = 'EN';
  if($apiuserid !=""){
-	$jsonData = '{"Person":{"Info2":"'.$Nationality.'","Code":"'.$code.'","Settings":{"SubscribeMailingList":'.$mailsubscr.'},"Info1":"'.$title.'","name":{"last":"'.$lastname.'","first":"'.$firstname.'"},"cellPhone":"'.$phone.'","email":"'.$email.'","address":{"Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'","country":"'.$country.'"},"Info3":"'.$Newsletter.'","credential":{"username":"'.$email.'","Password":"'.$password.'"},"Language":"EN","Info4":"'.$country.'"},"Context":{"Password":"'.$apipassword.'","ShopId":"'.$apishopid.'","Language":"'.$apilanguage.'"},"Options":{"IgnoreDuplicates":true,"CreateZipcodes":true,"SkipAgeValidation":false,"IgnoreCredentials":false}}';
-
-#  	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-     
+	$jsonData = '{"Person":{"Info2":"'.$Nationality.'","Code":"'.$code.'","Settings":{"SubscribeMailingList":"'.$SubscribeMailingList.'"},"Info1":"'.$title.'","name":{"last":"'.$lastname.'","first":"'.$firstname.'"},"cellPhone":"'.$phone.'","email":"'.$email.'","address":{"Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'","country":"'.$country.'"},"Info3":"'.$Newsletter.'","credential":{"username":"'.$email.'","Password":"'.$password.'"},"Language":"EN","Info4":"'.$country.'"},"Context":{"Password":"'.$apipassword.'","ShopId":"'.$apishopid.'","Language":"'.$apilanguage.'"},"Options":{"IgnoreDuplicates":true,"CreateZipcodes":true,"SkipAgeValidation":false,"IgnoreCredentials":false}}';
  }else{
-    	$jsonData = '{"Person":{"Address":{"Box":"'.$postbox.'","Country":"'.$country.'","Number":"","Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'"},"BirthDate":"","Credential":{"Password":"'.$password.'","Username":"'.$username.'"},"Email":"'.$mail.'","Gender":0,"IsBlocked":false,"Language":"EN","Name":{"First":"'.$firstname.'","Last":"'.$lastname.'"},"Phone":"'.$phone.'"},"Options":{"CreateZipcodes":false,"IgnoreCredentials":false,"IgnoreDuplicates":false,"ChangeFamilyMembersAddress":false,"SkipAgeValidation":false},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-   
+	$jsonData = '{"Person":{"Info2":"'.$Nationality.'","Code":"'.$code.'","Settings":{"SubscribeMailingList":"'.$SubscribeMailingList.'"},"Info1":"'.$title.'","name":{"last":"'.$lastname.'","first":"'.$firstname.'"},"cellPhone":"'.$phone.'","email":"'.$email.'","address":{"Street":"'.$streetname.'","Town":"'.$town.'","ZipCode":"'.$zipcode.'","country":"'.$country.'"},"Info3":"'.$Newsletter.'","credential":{"username":"'.$email.'","Password":"'.$password.'"},"Language":"EN","Info4":"'.$country.'"},"Context":{"Password":"'.$apipassword.'","ShopId":"'.$apishopid.'","Language":"'.$apilanguage.'"},"Options":{"IgnoreDuplicates":true,"CreateZipcodes":true,"SkipAgeValidation":false,"IgnoreCredentials":false}}';
  }
- 	$checkAPI = True;
-   $myJSON = "";
-	$checkAPI = verify_username($username);
-    if($checkAPI){
-       
-          $url = "https://testtickets.qm.org.qa/Json/General/SavePerson/";
-        	$ch = curl_init();
-        	curl_setopt($ch, CURLOPT_URL, $url);
-        	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
-        	curl_setopt($ch, CURLOPT_POST, 1);
-        	curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
-        	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        	$response  = curl_exec($ch);
-        	if(curl_errno($ch)){
-        		$responseData = curl_error($ch);
-        	}else{
-        		$responseData = json_decode($response, true);
-        	}
-        	curl_close($ch);
-        	$clientid = $responseData["result"]["person"]["id"];
-      
-       $new_user = array(
-              'name' => $username,
-              'pass' => $username,
-              'mail' => $mail,
-              'init' => $mail,
-              'field_first_name' =>$firstname,
-              'field_last_name' => $lastname,
-              'status' => 1,
-        );
-
+ $checkAPI = True;
+ $myJSON = "";
+ $checkAPI = verify_username($email);
+ if($checkAPI){
+	$url = "https://testtickets.qm.org.qa/Json/General/SavePerson/";
+	$responseData = APIcallform($jsonData, 'https://testtickets.qm.org.qa/Json/General/SavePerson/');
+        $clientid = $responseData["result"]["person"]["id"];
+	$username = $email; $mail = $email;
+        $new_user = array('name' => $username, 'pass' => $password, 'mail' => $mail, 'init' => $mail, 'field_first_name' =>$firstname, 'field_last_name' => $lastname, 'status' => 1,);
         // $account returns user object
         $account = user_save(null, $new_user);
         $userarrau = user_load_by_mail($mail);
-
-	  $_SESSION["username"] =$username; 
-	  $_SESSION["personid"] =	$clientid; 
-	  $_SESSION["personEmail"] =$mail; 
-	  $_SESSION["personName"] =$firstname; 
- 	  $_SESSION["personuid"] =$userarrau->uid; 
-     $GLOBALS['user']->uid =  $userarrau->uid; 
-
-
-$userId = $clientid;
-$lockTicketarr = '[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "'.$selemem.'"},"Quantity": 1,"CustomerID": "'.$userId.'"}],"Price": 0.0';
-
-$recalculateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.$lockTicketarr.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-
-//$recalculateBasket='{"Basket":{"CustomerId":"a5ef0e66-575c-e911-a2d9-005056b0828f","Items":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "8e54f0f2-2725-e911-a2d5-005056b0685a"},"Quantity": 1,"CustomerID": "a5ef0e66-575c-e911-a2d9-005056b0828f"}],"Price": 350.0},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-
-$url = 'https://testtickets.qm.org.qa/json/General/ReCalculateBasket/';
+	$_SESSION["username"] =$username; 
+	$_SESSION["personid"] =	$clientid; 
+	$_SESSION["personEmail"] =$mail; 
+	$_SESSION["personName"] =$firstname; 
+ 	$_SESSION["personuid"] =$userarrau->uid; 
+     	$GLOBALS['user']->uid =  $userarrau->uid; 
 
 
+	$userId = $clientid;
+	$lockTicketarr = '[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "'.$selemem.'"},"Quantity": 1,"CustomerID": "'.$userId.'"}],"Price": 0.0';
+	$recalculateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.$lockTicketarr.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+	$url = 'https://testtickets.qm.org.qa/json/General/ReCalculateBasket/';
+	$json = APIcallform($recalculateBasket, 'https://testtickets.qm.org.qa/Json/General/ReCalculateBasket/');
+	$amount = $json['basket']['price'];
+	$lockTicketarr1 = '[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "'.$selemem.'"},"Quantity": 1,"CustomerID": "'.$userId.'","unitPrice":'.$amount.',"customPrice":0}]';
+	$_SESSION["basketdetails"] = $lockTicketarr1;
 
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS,$recalculateBasket);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-$response  = curl_exec($ch);
-if(curl_errno($ch)){
-	$json = curl_error($ch);
-}else{
-	$json = json_decode($response, true);
-}
-curl_close($ch);
-
-
-
-
-$amount = $json['basket']['price'];
-
-
-$lockTicketarr1 = '[{"$type": "ReCreateX.WebShop.WebServices.Contracts.ArticleSale,ReCreateX.WebShop.WebServices.Contracts","Article": {"Id": "'.$selemem.'"},"Quantity": 1,"CustomerID": "'.$userId.'","unitPrice":'.$amount.',"customPrice":0}]';
-
-
-$_SESSION["basketdetails"] = $lockTicketarr1;
-
-$validateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.$lockTicketarr1.',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
-$url = 'https://testtickets.qm.org.qa/json/General/ValidateBasket/';
-
-
-
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type: application/json'));
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS,$validateBasket);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-$response  = curl_exec($ch);
-if(curl_errno($ch)){
-	$json = curl_error($ch);
-}else{
-	$json = json_decode($response, true);
-}
-curl_close($ch);
-
-
-
-$validcheck = $json["result"]["isValid"]; 
-if($validcheck){
-      $amount = (int)$amount * 100; # COLLECT AMOUNT FROM URL 
-
-         global $base_url;
-            $returnUrl = $base_url.'/updateusercheckout/'; # TESTING URL 
+	$validateBasket = '{"Basket":{"CustomerId":"'.$userId.'","Items":'.$lockTicketarr1.',"Payments":[{"$type": "ReCreateX.WebShop.WebServices.Contracts.BasketPayment,ReCreateX.WebShop.WebServices.Contracts","Amount": '.$amount.',"PaymentMethodId": "cb6b3c90-1322-e911-a2d5-005056b0685a"}],"Price":'.$amount.'},"Context":{"ShopId":"6D8BB141-5EA2-4DEE-9AF4-8B6CCD511134","Password":"dAW2zk4qP2ugZguD","Language":"EN"}}';
+	$url = 'https://testtickets.qm.org.qa/json/General/ValidateBasket/';
+	$json = APIcallform($validateBasket, 'https://testtickets.qm.org.qa/Json/General/ValidateBasket/');
+	$validcheck = $json["result"]["isValid"];
+	if($validcheck){
+      		$amount = (int)$amount * 100; # COLLECT AMOUNT FROM URL 
+         	global $base_url;
+            	$returnUrl = $base_url.'/updateusercheckout/'; # TESTING URL 
            
-            $vpcURL = 'https://migs-mtf.mastercard.com.au/vpcpay?';
-            $secretHash = 'D99F1498407B4B4F0411211B721AC6C0';
-            $accessCode = '46CADE35';
-            $merchantId = 'QMQNB01';
+            	$vpcURL = 'https://migs-mtf.mastercard.com.au/vpcpay?';
+            	$secretHash = 'D99F1498407B4B4F0411211B721AC6C0';
+            	$accessCode = '46CADE35';
+            	$merchantId = 'QMQNB01';
             
-            $data = array(
+            	$data = array(
                     "vpc_AccessCode" => $accessCode,
                     "vpc_Amount" => $amount,
                     "vpc_Command" => 'pay',
                     "vpc_Locale" => 'en',
-                    "vpc_MerchTxnRef" => "Ref_N_".time(),
+                    	"vpc_MerchTxnRef" => "Ref_N_".time(),
                     "vpc_Merchant" => $merchantId,
                     "vpc_OrderInfo" => "Order_N_".time(),
                     "vpc_ReturnURL" => $returnUrl,
                     "vpc_Version" => '1',
                     "vpc_SecureHashType" => 'SHA256'    
                     );
-            ksort($data);
-            $hash = null;
-            foreach ($data as $k => $v) {
-               if(in_array($k, array('vpc_SecureHash', 'vpc_SecureHashType'))) {
-                  continue;
-               }
-               if((strlen($v) > 0) && ((substr($k, 0, 4)=="vpc_") || (substr($k, 0, 5) =="user_"))) {
-                  $hash .= $k . "=" . $v . "&";
-               }
-            }
-            $hash = rtrim($hash, "&");
+            	ksort($data);
+            	$hash = null;
+            	foreach ($data as $k => $v) {
+               		if(in_array($k, array('vpc_SecureHash', 'vpc_SecureHashType'))) {
+                  		continue;
+               		}
+               		if((strlen($v) > 0) && ((substr($k, 0, 4)=="vpc_") || (substr($k, 0, 5) =="user_"))) {
+                  		$hash .= $k . "=" . $v . "&";
+               		}
+            	}
+            	$hash = rtrim($hash, "&");
             
-            $secureHash = strtoupper(hash_hmac('SHA256', $hash, pack('H*', $secretHash)));
-            $paraFinale = array_merge($data, array('vpc_SecureHash' => $secureHash));
-            $actionurl = $vpcURL.http_build_query($paraFinale);
-     
-    
-    
-    
-     $myArr = array("amount"=>$amount,"baseurl"=> $vpcURL, "queryurl"=>http_build_query($paraFinale),"isValid"=>$validcheck);
-   
-
-$myJSON = json_encode($myArr);
-
-    
-}else{
-       $myJSON = json_encode(array("isValid"=>$validcheck));
-
-}
-
-
-echo $myJSON;
-
-}else{
-	    echo 'Username already exits';
-		drupal_set_message(t('Username already exits, Try another name.'), 'error');
-               // return False;
+            	$secureHash = strtoupper(hash_hmac('SHA256', $hash, pack('H*', $secretHash)));
+            	$paraFinale = array_merge($data, array('vpc_SecureHash' => $secureHash));
+            	$actionurl = $vpcURL.http_build_query($paraFinale);
+     		$myArr = array("amount"=>$amount,"baseurl"=> $vpcURL, "queryurl"=>http_build_query($paraFinale),"isValid"=>$validcheck);
+   		$myJSON = json_encode($myArr);
+	}else{
+       		$myJSON = json_encode(array("isValid"=>$validcheck));
 	}
-	
-	
-   
-	
+	echo $myJSON;
+ }else{
+    echo 'Username already exits';
+    drupal_set_message(t('Username already exits, Try another name.'), 'error');
+ }	
 }
 
 function getexpositionid(){

@@ -11,7 +11,8 @@ $("#cemail").change(function () {
 	   $( "#cemail" ).focus(); 						
 	}else{
 	   $('.error_div').hide();
-	   $('.error_div').text("");	
+	   $('.error_div').text("");
+$("#cusername").val(username);		 	
 	   $(".next_btn").attr("disabled", false);		
 	}
   }});
